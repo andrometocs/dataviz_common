@@ -109,7 +109,6 @@ PySocks==1.7.1
 python-dateutil==2.8.1
 pytz==2020.5
 pytz-deprecation-shim==0.1.0.post0
-pywin32==300
 pywinpty==2.0.1
 PyYAML==5.3.1
 pyzmq==20.0.0
