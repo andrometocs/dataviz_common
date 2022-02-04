@@ -14,27 +14,44 @@ def main():
     st.title("EDA & Machine Learning Dataset Explorer")
     st.subheader("Using streamlit app to explore Machine Learning Datasets")
 
-    def file_Selector(folder_path='./datasets'):
-        filenames = os.listdir(folder_path)
-        selected_filename = st.selectbox('Select A file', filenames)
-        return os.path.join(folder_path, selected_filename)
+    st.sidebar.subheader("Upload Files and Visualization settings")
 
-    filename = file_Selector()
+    def save_uploadedFile(uploadedFile):
+        with open(os.path.join("./datasets", uploadedFile.name), "wb") as f:
+            f.write(uploadedFile.getBuffer())
+        return st.success("Saved file: {} to datasets".format(uploadedFile.name))
+
+    datafile = st.sidebar.file_uploader(
+        "Upload CSV", type=['csv'])
+    # if datafile is not None:
+    #   file_details = {"FileName": datafile.name, "FileType": datafile.type}
+    #  df = pd.read_csv(datafile)
+    # st.dataframe(df)
+    # save_uploadedFile(datafile)
+
+    # def file_Selector(folder_path='./datasets'):
+    #     filenames = os.listdir(folder_path)
+    #     selected_filename = st.selectbox('Select A file', filenames)
+    #     return os.path.join(folder_path, selected_filename)
+
+    filename = datafile
     st.info('You selected {}'.format(filename))
 
-    # read data
-    df = pd.read_csv(filename)
+    if filename is not None:
+        # read data
+        df = pd.read_csv(filename)
+
     # show dataset
-    if st.checkbox("Show Dataset"):
+    if filename is not None and st.checkbox("Show Dataset"):
         number = int(st.number_input("Number of rows to view", None, None, 1))
         st.dataframe(df.head(number))
 
     # show columns
-    if st.button("View Column Names"):
+    if filename is not None and st.button("View Column Names"):
         st.write(df.columns)
 
     # show shapes
-    if st.checkbox("Show Shape of the dataset"):
+    if filename is not None and st.checkbox("Show Shape of the dataset"):
         st.write(df.shape)
         dataDim = st.radio("Show Dimension by ", ("Rows", "Columns"))
         if dataDim == 'Rows':
@@ -47,14 +64,14 @@ def main():
             st.write(df.shape)
 
     # select columns
-    if st.checkbox("Select columns to show"):
+    if filename is not None and st.checkbox("Select columns to show"):
         all_columns = df.columns.tolist()
         selected_columns = st.multiselect("Select", all_columns)
         new_df = df[selected_columns]
         st.dataframe(new_df)
 
     # show values
-    if st.button("Value Counts"):
+    if filename is not None and st.button("Value Counts"):
         st.text("Value Counts by Target/Class")
         st.write(df.iloc[:, -1].value_counts())
 
@@ -62,7 +79,7 @@ def main():
     #     st.write(df.dtypes)
 
     # show summary
-    if st.checkbox("Summary"):
+    if filename is not None and st.checkbox("Summary"):
         st.write(df.describe().T)
 
     # plot visualization
@@ -79,12 +96,12 @@ def main():
     st.subheader("Data Visualization")
     # Correlation
     # Seaborn Plot
-    if st.checkbox("Correlation Plot[Seaborn]"):
+    if filename is not None and st.checkbox("Correlation Plot[Seaborn]"):
         st.write(sns.heatmap(df.corr(), annot=True))
         st.pyplot()
 
         # Pie Chart
-    if st.checkbox("Pie Plot"):
+    if filename is not None and st.checkbox("Pie Plot"):
         all_columns_names = df.columns.tolist()
         if st.button("Generate Pie Plot"):
             st.success("Generating A Pie Plot")
@@ -92,7 +109,7 @@ def main():
             st.pyplot()
 
         # Count Plot
-    if st.checkbox("Plot of Value Counts"):
+    if filename is not None and st.checkbox("Plot of Value Counts"):
         st.text("Value Counts By Target")
         all_columns_names = df.columns.tolist()
         primary_col = st.selectbox(
@@ -110,15 +127,15 @@ def main():
             st.pyplot()
 
         # Customizable Plot
+        if filename is not None:
+            st.subheader("Custom Data Visualization")
+            all_columns_names = df.columns.tolist()
+            type_of_plot = st.selectbox("Select Type of Plot", [
+                "area", "bar", "line", "hist", "box", "kde"])
+            selected_columns_names = st.multiselect(
+                "Select Columns To Plot", all_columns_names)
 
-        st.subheader("Custom Data Visualization")
-        all_columns_names = df.columns.tolist()
-        type_of_plot = st.selectbox("Select Type of Plot", [
-                                    "area", "bar", "line", "hist", "box", "kde"])
-        selected_columns_names = st.multiselect(
-            "Select Columns To Plot", all_columns_names)
-
-        if st.button("Generate Plot"):
+        if filename is not None and st.button("Generate Plot"):
             st.success("Generating Customizable Plot of {} for {}".format(
                 type_of_plot, selected_columns_names))
 
