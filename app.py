@@ -23,16 +23,6 @@ def main():
 
     datafile = st.sidebar.file_uploader(
         "Upload CSV", type=['csv'])
-    # if datafile is not None:
-    #   file_details = {"FileName": datafile.name, "FileType": datafile.type}
-    #  df = pd.read_csv(datafile)
-    # st.dataframe(df)
-    # save_uploadedFile(datafile)
-
-    # def file_Selector(folder_path='./datasets'):
-    #     filenames = os.listdir(folder_path)
-    #     selected_filename = st.selectbox('Select A file', filenames)
-    #     return os.path.join(folder_path, selected_filename)
 
     filename = datafile
     st.info('You selected {}'.format(filename))
@@ -40,11 +30,15 @@ def main():
     if filename is not None:
         # read data
         df = pd.read_csv(filename)
+        with st.expander("Automated Code Snippet for Reading CSV file"):
+            st.write("df = pd.read_csv(\""+str(filename.name)+"\")")
 
     # show dataset
     if filename is not None and st.checkbox("Show Dataset"):
         number = int(st.number_input("Number of rows to view", None, None, 1))
         st.dataframe(df.head(number))
+        with st.expander("Automated Code Snippet for showing header dataframe"):
+            st.write("df.head("+str(number)+")")
 
     # show columns
     if filename is not None and st.button("View Column Names"):
